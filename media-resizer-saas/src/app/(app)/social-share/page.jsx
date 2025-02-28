@@ -63,19 +63,19 @@ function SocialSharePage() {
     }
   }
 
-  const handleDownload = async () => { 
+  const handleDownload = () => { 
     if (!imgRef.current) return;
     fetch(imgRef.current.src)
       .then((res) => res.blob())
-    .then((blob) => {
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${selectedFormat.replace(/\s+/g,"_").toLowerCase()}.png`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a) 
-      window.URL.revokeObjectURL(url) 
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${selectedFormat.replace(/\s+/g,"_").toLowerCase()}.png`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a) 
+        window.URL.revokeObjectURL(url) 
     })
   }
 
