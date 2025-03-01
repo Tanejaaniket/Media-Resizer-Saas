@@ -42,8 +42,8 @@ function HomePage() {
   return (
     <div className="min-h-screen">
       <h1 className="text-3xl text-center my-5">Videos</h1>
+      {loading && <h1 className="text-center">Loading...</h1>}
       <div className="grid grid-cols-1 justify-items-center md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {loading && <h1>Loading...</h1>}
         {videos.map((video) => (
           <Fragment key={video.publicId}>
             <VideoCard video={video} onDownload={handleDownload} />

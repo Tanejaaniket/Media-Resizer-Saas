@@ -1,9 +1,16 @@
 import { CldImage, getCldImageUrl, getCldVideoUrl } from "next-cloudinary";
-import { Download, Clock, FileDown, FileUp } from "lucide-react";
+import {
+  Download,
+  Clock,
+  FileDown,
+  FileUp,
+  DownloadIcon,
+  FileText,
+} from "lucide-react";
 import dayjs from "dayjs";
 import { filesize } from "filesize";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useCallback, useEffect,useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 dayjs.extend(relativeTime);
 
@@ -45,41 +52,83 @@ function VideoCard({ video, onDownload }) {
     return filesize(size);
   }, []);
 
-  const formatDuartion = useCallback((seconds) => {
+  const formatDuartion = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.round(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  }, []);
+  };
 
-  // const compressionPercentage = Math.round(
-  //   (1 - Number(video.compressedSize) / Number(video.originalSize)) * 100
-  // );
+  const compressionPercentage = Math.round(
+    (1 - Number(video.compressedSize) / Number(video.originalSize)) * 100
+  );
+
+  const getRelativeTime = (uploadingDate) => {
+    const createdDate = new Date(uploadingDate);
+    const diff = Date.now() - createdDate;
+    return Math.round(diff / (1000 * 60 * 60 * 24));
+  };
 
   useEffect(() => {
     setPreviewError(false);
-    console.log(video)
-  }, [isHovered])
-  
+  }, [isHovered]);
+
   const handlePreviewError = () => {
-    setPreviewError(true)
-  }
+    setPreviewError(true);
+  };
 
   return (
     <>
       <div className="card bg-base-100 w-96 shadow-xl">
-        <figure>
-          <video
-            src={getPreviewVideoUrl(video.publicId)}
-            autoPlay
-            loop
-            muted
-          />
+        <figure
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {isHovered ? (
+            previewError ? (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                <p className="text-red-500">Preview not available</p>
+              </div>
+            ) : (
+              <video
+                src={getPreviewVideoUrl(video.publicId)}
+                autoPlay
+                loop
+                muted
+                onError={handlePreviewError}
+              />
+            )
+          ) : (
+            <div>
+              <img src={getThumbnailUrl(video.publicId)} />
+              <div className="absolute right-2 top-[40%] bg-base-100 bg-opacity-70 px-2 py-1 rounded-lg text-sm flex items-center">
+                <Clock size={16} className="mr-1" />
+                {formatDuartion(video.duration)}
+              </div>
+            </div>
+          )}
         </figure>
         <div className="card-body">
-          <h2 className="card-title">Shoes!</h2>
-          <p>If a dog chews shoes whose shoes does he choose?</p>
+          <h2 className="card-title py-2">{video.title}</h2>
+          <div className="flex pb-2">
+            <p>
+              <FileText className="inline" /> {formatSize(video.compressedSize)}
+            </p>
+            <p className="text-green-400">
+              <FileDown className="inline" /> {`${compressionPercentage} %`}
+            </p>
+          </div>
+          <p className="text-slate-400">
+            Uploaded: {getRelativeTime(video.createdAt)} days ago
+          </p>
           <div className="card-actions justify-end">
-            <button className="btn btn-primary">Buy Now</button>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                onDownload(getFullVideoUrl(video.publicId, video.title));
+              }}
+            >
+              <DownloadIcon />
+            </button>
           </div>
         </div>
       </div>
